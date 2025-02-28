@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platelet Count Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Platelet Count Calculator</h1>
+        
+        <div class="input-grid">
+            <div class="patient-metrics">
+                <div class="input-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" placeholder="Enter weight">
+                </div>
+                <div class="input-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" placeholder="Enter height">
+                </div>
+                <div class="input-group">
+                    <label for="plateletUnit">Platelet Unit Content</label>
+                    <input type="number" id="plateletUnit" value="3">
+                </div>
+            </div>
+
+            <div class="text-inputs">
+                <div class="input-group">
+                    <label for="transfusions">Transfusions</label>
+                    <textarea id="transfusions" placeholder="Paste transfusion data here..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="plateletCounts">Platelet Counts</label>
+                    <textarea id="plateletCounts" placeholder="Paste platelet count data here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="results">
+            <h2>Results</h2>
+            <div class="table-container">
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Transfusion Date/Time</th>
+                            <th>Pre Count</th>
+                            <th>Post Count</th>
+                            <th>CCI</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="summary-container">
+                <h3>Summary</h3>
+                <textarea id="summaryText" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 
