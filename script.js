@@ -60,15 +60,15 @@ class PlateletCalculator {
             const diffHours = (targetTime - countTime) / (1000 * 60 * 60);
 
             if (isPreCount) {
-                // For pre-count: must be between 1 and 12 hours before
-                if (diffHours >= 1 && diffHours <= 12 && diffHours < minDiff) {
+                // For pre-count: must be between 0 and 36 hours before
+                if (diffHours > 0 && diffHours <= 36 && diffHours < minDiff) {
                     minDiff = diffHours;
                     closest = count;
                 }
             } else {
-                // For post-count: must be between 15 and 60 minutes after
+                // For post-count: must be between 1 and 120 minutes after
                 const diffMinutes = (countTime - targetTime) / (1000 * 60);
-                if (diffMinutes >= 15 && diffMinutes <= 60 && diffMinutes/60 < minDiff) {
+                if (diffMinutes >= 1 && diffMinutes <= 120 && diffMinutes/60 < minDiff) {
                     minDiff = diffMinutes/60;
                     closest = count;
                 }
