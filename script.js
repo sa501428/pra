@@ -32,7 +32,7 @@ class PlateletCalculator {
     }
 
     parsePlateletCounts(text) {
-        const regex = /(\d{2}\/\d{2}\/\d{2})\s+(\d{2}):(\d{2})\nPLT:\s+(\d+)/g;
+        const regex = /(\d{2}\/\d{2}\/\d{2})\s+(\d{2}):(\d{2})\n(?:PLT:|Platelets:)\s+(\d+)/g;
         const matches = [...text.matchAll(regex)];
         return matches.map(match => ({
             date: match[1],
