@@ -4,14 +4,13 @@
 
 The Platelet Bump Calculator is a specialized tool designed to analyze the effectiveness of platelet transfusions by calculating the Corrected Count Increment (CCI) for multiple transfusions. This documentation provides detailed technical information for implementing the calculator.
 
-## Core Concepts
+## Core Concept
 
-### Platelet Transfusion Response
 A successful platelet transfusion should result in an appropriate increase in the patient's platelet count. The effectiveness is measured using the CCI, which accounts for the patient's body surface area and the number of platelets transfused.
 
-### Key Formulas
+## Key Formulas
 
-#### 1. Body Surface Area (BSA)
+### 1. Body Surface Area (BSA)
 The Mosteller formula is used to calculate BSA:
 BSA = square root of ((height × weight) / 3600)
 
@@ -20,7 +19,7 @@ Where:
 - weight is in kilograms
 - BSA result is in square meters (m²)
 
-#### 2. Corrected Count Increment (CCI)
+### 2. Corrected Count Increment (CCI)
 
 CCI = ((post_count - pre_count) × 1000 × BSA) / platelet_units
 
@@ -31,27 +30,12 @@ Where:
 - platelet_units: number of platelets transfused (typically 3-4 x 10e11)
 - CCI result is in platelets/µL
 
-
 A CCI ≥ 7500 indicates an adequate response.
 
 
 
 
-## Matching Algorithm
-
-### Pre-Transfusion Count Criteria
-- Must be within 36 hours before transfusion
-- Closest count to transfusion time is selected
-
-### Post-Transfusion Count Criteria
-- Must be between 1 and 120 minutes after transfusion end time
-- Closest count to ideal measurement time is selected
-
 ## Implementation Details
-
-### Regular Expressions
-
-## Data Input Format
 
 ### Transfusion Data
 Expected format:
@@ -60,7 +44,7 @@ MM/DD/YY HHMM to HHMM
 Example:
 02/15/24 0800 to 0900
 
-#### Transfusion Parser
+#### Parser
 javascript
 /(\d{2}\/\d{2}\/\d{2})\s+\d{4}\s+to\s+(\d{4})/g
 
@@ -70,9 +54,6 @@ Capture groups:
 
 ### Platelet Count Format
 The system accepts platelet counts in two formats:
-
-### Platelet Count Data
-Expected format:
 
 MM/DD/YY HH:MM
 PLT: XXX
@@ -89,6 +70,8 @@ PLT: 12
 02/15/24 10:15
 Platelets: 35
 
+#### Parser
+
 javascript
 /(\d{2}\/\d{2}\/\d{2})\s+(\d{2}):(\d{2})\n(?:PLT:|Platelets:)\s+(\d+)/g
 
@@ -98,20 +81,20 @@ Capture groups:
 3. Minutes (MM)
 4. Count value
 
+
 ## Matching Algorithm
 
 ### Pre-Transfusion Count Selection
-- Time window: 0-36 hours before transfusion
-- Selection criteria: Closest count to transfusion start time
+- Time window: 0-36 hours (tunable) before transfusion
+- Closest count to transfusion start time is selected
 - Must occur before transfusion start
 
 ### Post-Transfusion Count Selection
-- Time window: 1-120 minutes after transfusion end
-- Selection criteria: Closest count to ideal measurement time
+- Time window: 1-120 minutes (tunable) after transfusion end time
+- Closest count to the transfusion time is selected
 - Must occur after transfusion end
 
 ## Implementation Details
-
 
 ### Key Methods
 
@@ -132,23 +115,10 @@ Capture groups:
 
 ### Results Processing
 
-#### Success Criteria
+Success Criteria:
 - CCI ≥ 7500: Adequate response
 - CCI < 7500: Inadequate response
 
-#### Output Format
-1. Tabular results:
-   - Transfusion date/time
-   - Pre-count
-   - Post-count
-   - CCI
-   - Visual indicators (green/red) for adequate/inadequate
-
-2. Summary text:
-   - Count of adequate/inadequate responses
-   - Detailed list of each transfusion
-   - Timing details
-   - CCI values
 
 ## User Interface Components
 
