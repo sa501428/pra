@@ -51,29 +51,38 @@ class PlateletCalculator {
         return ((postCount - preCount) * 1000 * bsa) / plateletUnit;
     }
 
-    findClosestCount(targetDateTime, counts, hoursRange, isPreCount = false) {
-        const targetTime = new Date(targetDateTime);
+    findPreCount(transfusionStartDateTime, counts) {
+        const startTime = new Date(transfusionStartDateTime);
         let closest = null;
         let minDiff = Infinity;
 
         counts.forEach(count => {
-            const countTime = new Date(count.date + ' ' + 
+            const countTime = new Date(count.date + ' ' +
                 count.time.replace(/(\d{2})(\d{2})/, '$1:$2'));
-            const diffHours = (targetTime - countTime) / (1000 * 60 * 60);
+            const diffHours = (startTime - countTime) / (1000 * 60 * 60);
+            // Must be 0–36 hours before transfusion START (not during or after)
+            if (diffHours > 0 && diffHours <= 36 && diffHours < minDiff) {
+                minDiff = diffHours;
+                closest = count;
+            }
+        });
 
-            if (isPreCount) {
-                // For pre-count: must be between 0 and 36 hours before
-                if (diffHours > 0 && diffHours <= 36 && diffHours < minDiff) {
-                    minDiff = diffHours;
-                    closest = count;
-                }
-            } else {
-                // For post-count: must be between 1 and 120 minutes after
-                const diffMinutes = (countTime - targetTime) / (1000 * 60);
-                if (diffMinutes >= 1 && diffMinutes <= 120 && diffMinutes/60 < minDiff) {
-                    minDiff = diffMinutes/60;
-                    closest = count;
-                }
+        return closest;
+    }
+
+    findPostCount(transfusionEndDateTime, counts) {
+        const endTime = new Date(transfusionEndDateTime);
+        let closest = null;
+        let minDiff = Infinity;
+
+        counts.forEach(count => {
+            const countTime = new Date(count.date + ' ' +
+                count.time.replace(/(\d{2})(\d{2})/, '$1:$2'));
+            // Must be 1–120 minutes after transfusion END
+            const diffMinutes = (countTime - endTime) / (1000 * 60);
+            if (diffMinutes >= 1 && diffMinutes <= 120 && diffMinutes < minDiff) {
+                minDiff = diffMinutes;
+                closest = count;
             }
         });
 
@@ -111,8 +120,10 @@ class PlateletCalculator {
             const transfusionDateTime = new Date(endDateStr + ' ' +
                 transfusion.endTime.replace(/(\d{2})(\d{2})/, '$1:$2'));
 
-            const preCount = this.findClosestCount(transfusionDateTime, counts, 12, true);
-            const postCount = this.findClosestCount(transfusionDateTime, counts, 1, false);
+            const transfusionStartDateTime = new Date(transfusion.date + ' ' +
+                transfusion.startTime.replace(/(\d{2})(\d{2})/, '$1:$2'));
+            const preCount = this.findPreCount(transfusionStartDateTime, counts);
+            const postCount = this.findPostCount(transfusionDateTime, counts);
 
             let cci = null;
             if (preCount && postCount) {
@@ -140,7 +151,7 @@ class PlateletCalculator {
                 <td>${transfusion.date} ${transfusion.startTime} to ${transfusion.endTime}</td>
                 <td>${preCount ? preCount.count : '-'}</td>
                 <td>${postCount ? postCount.count : '-'}</td>
-                <td>${cci ? cci.toFixed(0) : '-'}</td>
+                <td>${cci !== null ? cci.toFixed(0) : '-'}</td>
             `;
 
             if (cci !== null) {
