@@ -23,11 +23,12 @@ class PlateletCalculator {
     }
 
     parseTransfusions(text) {
-        const regex = /(\d{2}\/\d{2}\/\d{2})\s+\d{4}\s+to\s+(\d{4})/g;
+        const regex = /(\d{2}\/\d{2}\/\d{2})\s+(\d{4})\s+to\s+(\d{4})/g;
         const matches = [...text.matchAll(regex)];
         return matches.map(match => ({
             date: match[1],
-            time: match[2]
+            startTime: match[2],
+            endTime: match[3]
         }));
     }
 
@@ -97,8 +98,18 @@ class PlateletCalculator {
         const inadequateResponses = [];
 
         transfusions.forEach(transfusion => {
-            const transfusionDateTime = new Date(transfusion.date + ' ' + 
-                transfusion.time.replace(/(\d{2})(\d{2})/, '$1:$2'));
+            // If end time < start time the transfusion crossed midnight — end date is the next calendar day
+            let endDateStr = transfusion.date;
+            if (parseInt(transfusion.endTime) < parseInt(transfusion.startTime)) {
+                const parts = transfusion.date.split('/');
+                const d = new Date(+('20' + parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+                d.setDate(d.getDate() + 1);
+                endDateStr = String(d.getMonth() + 1).padStart(2, '0') + '/' +
+                             String(d.getDate()).padStart(2, '0') + '/' +
+                             String(d.getFullYear()).slice(-2);
+            }
+            const transfusionDateTime = new Date(endDateStr + ' ' +
+                transfusion.endTime.replace(/(\d{2})(\d{2})/, '$1:$2'));
 
             const preCount = this.findClosestCount(transfusionDateTime, counts, 12, true);
             const postCount = this.findClosestCount(transfusionDateTime, counts, 1, false);
@@ -113,7 +124,7 @@ class PlateletCalculator {
                 const minutesAfter = Math.round((postDateTime - transfusionDateTime) / (1000 * 60));
 
                 // Create summary entry
-                const summaryEntry = `${transfusion.date} ${transfusion.time}, ` +
+                const summaryEntry = `${transfusion.date} ${transfusion.startTime} to ${transfusion.endTime}, ` +
                                    `pre: ${preCount.count}, post: ${postCount.count} ` +
                                    `(${minutesAfter} mins after), CCI: ${cci.toFixed(0)}`;
 
@@ -126,7 +137,7 @@ class PlateletCalculator {
 
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${transfusion.date} ${transfusion.time}</td>
+                <td>${transfusion.date} ${transfusion.startTime} to ${transfusion.endTime}</td>
                 <td>${preCount ? preCount.count : '-'}</td>
                 <td>${postCount ? postCount.count : '-'}</td>
                 <td>${cci ? cci.toFixed(0) : '-'}</td>
